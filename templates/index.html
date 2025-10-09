@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ro">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Coloring Page Generator</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='pencil-icon.png') }}">
+
+  </head>
+  <body>
+    <div class="container">
+      <h1>Coloring Page Generator</h1>
+      <p class="description">
+        Transformă orice imagine într-o pagină de colorat personalizată. Alege
+        modul în care vrei să fie prelucrată imaginea și descarcă rezultatul!
+      </p>
+      <div
+        class="example-demo"
+        style="
+          display: flex;
+          gap: 32px;
+          justify-content: center;
+          margin-bottom: 32px;
+        "
+      >
+        <div>
+          <div style="color: #ad1457; text-align: center">Original</div>
+          <img
+            src="{{ url_for('static', filename='example_before.jpg') }}"
+            alt="Exemplu înainte"
+            style="
+              max-width: 330px;
+              width: 100%;
+              border-radius: 9px;
+              box-shadow: 0 2px 8px #f8bbd088;
+            "
+          />
+        </div>
+        <div>
+          <div style="color: #880e4f; text-align: center">Procesat</div>
+          <img
+            src="{{ url_for('static', filename='example_after.png') }}"
+            alt="Exemplu după"
+            style="
+              max-width: 330px;
+              width: 100%;
+              border-radius: 9px;
+              box-shadow: 0 2px 8px #f8bbd088;
+            "
+          />
+        </div>
+      </div>
+
+      <form action="/process" method="post" enctype="multipart/form-data">
+        <label for="image">Selectează imaginea:</label>
+        <input type="file" name="image" id="image" accept="image/*" required />
+
+        <label for="format">Alege formatul paginii de colorat:</label>
+        <select name="format" id="format" required>
+          <option value="default">Fără modificări suplimentare</option>
+          <option value="background">Cu fundal alb</option>
+          <option value="visible_lines">Linii mai vizibile</option>
+        </select>
+
+        <input type="submit" value="Procesează" />
+      </form>
+
+      <div id="result-preview" style="margin: 24px 0; text-align: center"></div>
+      <div style="text-align: center">
+        <a
+          id="download-link"
+          href="#"
+          style="display: none"
+          download="coloring_page.png"
+          >Descarcă imaginea</a
+        >
+      </div>
+
+      <script>
+        document.querySelector("form").addEventListener("submit", function (e) {
+          e.preventDefault();
+          const form = e.target;
+          const formData = new FormData(form);
+
+          fetch("/process", {
+            method: "POST",
+            body: formData,
+          })
+            .then((resp) => resp.blob())
+            .then((blob) => {
+              const url = URL.createObjectURL(blob);
+
+              document.getElementById("result-preview").innerHTML =
+                '<img src="' +
+                url +
+                '" style="max-width:300px; border:2px solid #ad1457; border-radius:8px;">';
+
+              const dl = document.getElementById("download-link");
+              dl.href = url;
+              dl.style.display = "inline-block";
+            });
+        });
+      </script>
+
+      <footer>&copy; 2025 Coloring Page Generator</footer>
+    </div>
+  </body>
+</html>
